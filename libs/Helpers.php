@@ -130,7 +130,13 @@ function showError($error)
 function csrf_token() {
     if (empty($_COOKIE['_csrf_token'])) {
         $token = bin2hex(random_bytes(32));
-        setcookie('_csrf_token', $token, 0, '/', '', true, true);
+        setcookie('_csrf_token', $token, [
+            'expires'  => 0,
+            'path'     => '/',
+            'secure'   => true,
+            'httponly' => true,
+            'samesite' => 'Strict',
+        ]);
         return $token;
     }
     return $_COOKIE['_csrf_token'];
