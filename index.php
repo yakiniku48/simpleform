@@ -4,7 +4,11 @@ require_once __DIR__.'/libs/Autoload.php';
 loadEnv(__DIR__.'/.env');
 
 function validationRules() {
-    return [
+    static $rules = null;
+    if ($rules !== null) {
+        return $rules;
+    }
+    $rules = [
         'category' => [
             'label' => 'お問い合わせ種別',
             'rules' => 'required',
@@ -50,6 +54,7 @@ function validationRules() {
             'rules' => 'required|recaptcha_v3[submit,0.5]',
         ],
     ];
+    return $rules;
 }
 
 $routing = new Routing('/simpleform');
