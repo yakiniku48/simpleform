@@ -45,8 +45,11 @@ function loadEnv($path)
 define('COOKIE_POST_VALUES', 'postValues');
 define('COOKIE_VALIDATION_ERRORS', 'validationErrors');
 
-setcookie(COOKIE_POST_VALUES, '', time() - 3600, '/', '', true, true);
-setcookie(COOKIE_VALIDATION_ERRORS, '', time() - 3600, '/', '', true, true);
+function clearSessionCookies()
+{
+    setcookie(COOKIE_POST_VALUES, '', time() - 3600, '/', '', true, true);
+    setcookie(COOKIE_VALIDATION_ERRORS, '', time() - 3600, '/', '', true, true);
+}
 
 function redirect($path, $errors = [])
 {

@@ -63,9 +63,12 @@ $routing->add('GET', '/thanks', function () { showThanks(); });
 $routing->dispatch();
 
 function showForm() {
+    $old = getOldFromCookie();
+    $errors = getErrorsFromCookie();
+    clearSessionCookies();
     echo render('_page.form.php', [
-        'old' => getOldFromCookie(),
-        'errors' => getErrorsFromCookie(),
+        'old' => $old,
+        'errors' => $errors,
     ]);
     return;
 }
