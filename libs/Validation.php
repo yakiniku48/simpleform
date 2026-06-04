@@ -94,7 +94,10 @@ class Validation
         ];
         $context  = stream_context_create($options);
         $result = file_get_contents($url, false, $context);
-        if ($result === false) return false;
+        if ($result === false) {
+            $this->addError($name, "<em>“{$label}”</em> の検証に失敗しました。時間をおいて再度お試しください。");
+            return;
+        }
 
         $resultData = json_decode($result, true);
         $verifyRecaptchaV3 = (
