@@ -76,7 +76,12 @@ class Validation
         $secret = getenv('RECAPTCHA_SECRET_KEY');
         $url = 'https://www.google.com/recaptcha/api/siteverify';
 
-        list($action, $threshold) = explode(',', $actionScore);
+        $parts = explode(',', $actionScore);
+        if (count($parts) < 2) {
+            $this->addError($name, "<em>"{$label}"</em> の設定が正しくありません。");
+            return;
+        }
+        [$action, $threshold] = $parts;
 
         $data = [
             'secret' => $secret,
