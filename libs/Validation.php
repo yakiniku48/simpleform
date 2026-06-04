@@ -78,7 +78,7 @@ class Validation
 
         $parts = explode(',', $actionScore);
         if (count($parts) < 2) {
-            $this->addError($name, "<em>"{$label}"</em> の設定が正しくありません。");
+            $this->addError($name, "<em>“{$label}”</em> の設定が正しくありません。");
             return;
         }
         [$action, $threshold] = $parts;
