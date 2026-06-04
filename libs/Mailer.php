@@ -53,7 +53,11 @@ class Mailer
 
     public function setReplyTo($address)
     {
+        if (!filter_var($address, FILTER_VALIDATE_EMAIL)) {
+            return false;
+        }
         $this->replyTo = $address;
+        return true;
     }
 
     public function setSubject($subject)
