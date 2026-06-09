@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "file=$(echo \"$CLAUDE_TOOL_INPUT\" | jq -r '.file_path // .path // \"\"'); if [[ \"$file\" == *.php ]]; then php -l \"$file\"; fi"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "file=$(echo \"$CLAUDE_TOOL_INPUT\" | jq -r '.file_path // .path // \"\"'); if [[ \"$file\" == *\".env\" && \"$file\" != *\".env.example\" ]]; then echo 'ERROR: .env の直接編集は禁止されています。.env.example を参考に手動で編集してください。' >&2; exit 2; fi"
+          }
+        ]
+      }
+    ]
+  }
+}
