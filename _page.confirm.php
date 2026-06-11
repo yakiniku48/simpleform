@@ -18,6 +18,7 @@
                 <form method="POST" action="./submit" id="simpleForm" class="row g-3" novalidate>
                     <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response">
                     <input type="hidden" name="_csrf" value="<?= h(csrf_token()) ?>">
+                    <input type="hidden" name="action" id="actionInput" value="">
                     <?= formHiddenParams() ?>
                     <style>
                     .table>:not(caption)>*>* {
@@ -42,8 +43,8 @@
                         </table>
                     </div>
                     <div class="col-12">
-                        <button class="btn btn-primary" name="action" value="send" type="submit">送信する</button>
-                        <button class="btn btn-secondary" name="action" value="back" type="submit">修正する</button>
+                        <button class="btn btn-primary" data-action="send" type="submit">送信する</button>
+                        <button class="btn btn-secondary" data-action="back" type="submit">修正する</button>
                     </div>
                 </form>
             </div>
@@ -51,11 +52,24 @@
     </div>
     <script src="https://www.google.com/recaptcha/api.js?render=<?= getenv('RECAPTCHA_SITE_KEY') ?>"></script>
     <script>
+    let clickedAction = '';
+    document.querySelectorAll('button[data-action]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            clickedAction = this.dataset.action;
+        });
+    });
     grecaptcha.ready(function() {
         document.getElementById('simpleForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            const actionInput = document.getElementById('actionInput');
+            if (clickedAction !== 'send') {
+                actionInput.value = clickedAction;
+                e.target.submit();
+                return;
+            }
             grecaptcha.execute('<?= getenv('RECAPTCHA_SITE_KEY') ?>', {action: 'submit'}).then(function(token) {
                 document.getElementById('g-recaptcha-response').value = token;
+                actionInput.value = 'send';
                 e.target.submit();
             });
         });
