@@ -107,8 +107,8 @@ class Validation
         $resultData = json_decode($result, true);
         $verifyRecaptchaV3 = (
             !empty($resultData['success']) &&
-            $resultData['action'] === $action &&
-            $resultData['score'] >= $threshold
+            ($resultData['action'] ?? '') === $action &&
+            ($resultData['score'] ?? 0) >= $threshold
         );
 
         if (! $verifyRecaptchaV3) {

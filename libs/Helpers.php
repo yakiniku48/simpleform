@@ -80,6 +80,20 @@ function getErrorsFromCookie()
     if ($validationErrors = filter_input(INPUT_COOKIE, COOKIE_VALIDATION_ERRORS)) {
         $errors = json_decode($validationErrors, true);
     }
+    if (! is_array($errors)) {
+        return [];
+    }
+
+    // クッキーは改ざん可能なため、表示用の <em> 以外のHTMLを除去する
+    foreach ($errors as $field => $messages) {
+        $messages = is_array($messages) ? $messages : [$messages];
+        foreach ($messages as $i => $msg) {
+            $msg = strip_tags((string) $msg, '<em>');
+            $msg = preg_replace('/<em\b[^>]*>/iu', '<em>', $msg);
+            $messages[$i] = $msg;
+        }
+        $errors[$field] = $messages;
+    }
 
     return $errors;
 }
@@ -89,10 +103,10 @@ function getErrorsFromCookie()
  */
 function getPostValue($key, $escape = false) {
     $value = filter_input(INPUT_POST, $key, FILTER_DEFAULT, ['flags' => FILTER_REQUIRE_ARRAY]);
-    if (empty($value)) {
+    if ($value === null || $value === false || $value === []) {
         $value = filter_input(INPUT_POST, $key);
     }
-    if (empty($value)) {
+    if ($value === null || $value === false || $value === '' || $value === []) {
         return;
     }
     if ($escape) {
@@ -110,7 +124,7 @@ function buildFormData($postKeys, $isHTML = false) {
         $values = getPostValue($key, $isHTML);
         if (is_array($values)) {
             $formData[$key] = implode(', ', $values);
-        } elseif (! empty($values)) {
+        } elseif ($values !== null) {
             $formData[$key] = $isHTML ? nl2br($values) : $values;
         } else {
             $formData[$key] = '';
@@ -149,7 +163,7 @@ function check_csrf()
 {
     $cookie = filter_input(INPUT_COOKIE, '_csrf_token');
     $post = filter_input(INPUT_POST, '_csrf');
-    if (! $cookie || ! $post || $cookie !== $post) {
+    if (! $cookie || ! $post || ! hash_equals($cookie, $post)) {
         setcookie('_csrf_token', '', time() - 3600, '/', '', true, true);
         http_response_code(400);
         echo render('_page.common.php', [
@@ -167,6 +181,10 @@ function formHiddenParams()
     $hiddens = '';
     $postKeys = array_keys(validationRules());
     foreach ($postKeys as $key) {
+        // 消費済みトークンを再送するとsiteverifyがduplicateで失敗するため除外
+        if ($key === 'g-recaptcha-response') {
+            continue;
+        }
         $values = getPostValue($key, true);
         if (is_array($values)) {
             foreach ($values as $value) {

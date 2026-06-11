@@ -139,11 +139,8 @@ function handleSubmit() {
     $formData = buildFormData($postKeys, $mailer->isHTML);
     $mailer->setMessage(render('_mail.user.php', ['formData' => $formData]));
     if (! $mailer->send()) {
-        echo render('_page.common.php', [
-            'title' => 'Something went wrong',
-            'message' => 'メールの送信に失敗しました。時間をおいて再度お試しください',
-        ]);
-        return;
+        // 管理者宛は送信済みのため、エラー画面で再送信させず受付完了として扱う
+        error_log('simpleform: 自動返信メールの送信に失敗しました to='.getPostValue('email'));
     }
 
     redirect('./thanks');
